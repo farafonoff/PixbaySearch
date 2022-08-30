@@ -1,6 +1,6 @@
 import {AnyAction, configureStore} from '@reduxjs/toolkit';
 import thunk, { ThunkAction } from 'redux-thunk';
-import searchSlice from './searchSlice';
+import searchSlice from './reducers/searchSlice';
 
 export const store = configureStore({
   reducer: {
