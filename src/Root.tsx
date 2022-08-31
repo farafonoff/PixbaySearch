@@ -1,11 +1,11 @@
 import React from 'react';
-import {store} from './src/store';
+import {store} from './store';
 import {Provider} from 'react-redux';
 import {NavigationContainer} from '@react-navigation/native';
-import SearchScreen from './src/pages/SearchScreen';
+import SearchScreen from './pages/SearchScreen';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import DetailScreen from './src/pages/DetailScreen';
-import { RootStackParamList } from './src/navigation';
+import DetailScreen from './pages/DetailScreen';
+import {RootStackParamList} from './navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

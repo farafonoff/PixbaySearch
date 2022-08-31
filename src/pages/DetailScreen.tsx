@@ -9,7 +9,7 @@ import {getCurrentImage} from '../reducers/selectors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ImageView'>;
 
-const DetailScreen: React.FC<Props> = ({route, navigation}) => {
+const DetailScreen: React.FC<Props> = ({route}) => {
   const id = useMemo(() => route.params.id, [route.params]);
   const image = useSelector(getCurrentImage);
   const dispatch = useDispatch();
@@ -26,7 +26,8 @@ const DetailScreen: React.FC<Props> = ({route, navigation}) => {
       <FastImage
         style={style.image}
         resizeMode={FastImage.resizeMode.contain}
-        source={{uri: image?.largeImageURL}}></FastImage>
+        source={{uri: image?.largeImageURL}}
+      />
     </SafeAreaView>
   );
 };

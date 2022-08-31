@@ -1,4 +1,3 @@
-import {StackRouter} from '@react-navigation/routers';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {PixbaySearchResult} from '../api/types';
 
@@ -37,7 +36,7 @@ export const searchSlice = createSlice({
   name: 'counter',
   initialState,
   reducers: {
-    resetSearch: state => {
+    resetSearch: _state => {
       return initialState;
     },
     initiateSearch: (state, action: PayloadAction<string>) => {

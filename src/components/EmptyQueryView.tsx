@@ -1,15 +1,15 @@
 import React from 'react';
-import {ActivityIndicator, SafeAreaView, StyleSheet} from 'react-native';
+import {SafeAreaView, StyleSheet, Text} from 'react-native';
 
-const SpinnerView = () => {
+const EmptyQueryView = () => {
   return (
     <SafeAreaView style={style.container}>
-      <ActivityIndicator />
+      <Text>Start typing to search for images</Text>
     </SafeAreaView>
   );
 };
 
-export default SpinnerView;
+export default EmptyQueryView;
 
 const style = StyleSheet.create({
   container: {

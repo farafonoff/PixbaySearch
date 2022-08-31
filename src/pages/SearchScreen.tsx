@@ -13,12 +13,13 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import {searchImages, continueSearch} from '../api/pixbay';
 import FastImage from 'react-native-fast-image';
-import _, {debounce} from 'lodash';
+import {debounce} from 'lodash';
 import {RootStackParamList} from '../navigation';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {searchStateSelector} from '../reducers/selectors';
 import ErrorView from '../components/ErrorView';
 import SpinnerView from '../components/SpinnerView';
+import EmptyQueryView from '../components/EmptyQueryView';
 
 const ITEM_HEIGHT = 200;
 
@@ -30,25 +31,33 @@ const SearchScreen: React.FC<Props> = ({navigation}) => {
   const [columns, setColumns] = useState(2);
   const topItemRef = useRef<number | null>();
   const listRef = useRef<FlatList>(null);
+  const [query, setQuery] = useState('');
   useEffect(() => {
-    const subscription = Dimensions.addEventListener(
-      'change',
-      ({window, screen}) => {
-        if (window.height > window.width) {
-          setColumns(2);
-        } else {
-          setColumns(4);
-        }
-      },
-    );
+    const subscription = Dimensions.addEventListener('change', ({window}) => {
+      if (window.height > window.width) {
+        setColumns(2);
+      } else {
+        setColumns(4);
+      }
+    });
     return () => subscription?.remove();
   });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const invokeSearch = useCallback(
     debounce((text: string) => {
       dispatch(searchImages(text));
     }, 300),
     [dispatch],
   );
+
+  const onSearchStringChange = useCallback(
+    (queryString: string) => {
+      setQuery(queryString);
+      invokeSearch(queryString);
+    },
+    [invokeSearch],
+  );
+
   const onViewableItemsChanged = useCallback(
     (e: {viewableItems: Array<ViewToken>; changed: Array<ViewToken>}) => {
       const count = e.viewableItems.length;
@@ -71,50 +80,56 @@ const SearchScreen: React.FC<Props> = ({navigation}) => {
         <View style={[style.container]}>
           <TextInput
             style={style.input}
-            onChangeText={invokeSearch}
+            onChangeText={onSearchStringChange}
+            value={query}
             placeholder="Search query"
           />
-          {searchState.noDataError && <ErrorView />}
-          {!searchState.noDataError && (
-            <FlatList
-              //onLayout={resetLayout}
-              getItemLayout={(data, index) => ({
-                length: ITEM_HEIGHT,
-                offset: ITEM_HEIGHT * index,
-                index,
-              })}
-              initialScrollIndex={Math.floor(
-                (topItemRef.current || 0) / columns,
-              )}
-              /*onScrollToIndexFailed={info => {
+          {!query && <EmptyQueryView />}
+          {query && (
+            <>
+              {searchState.noDataError && <ErrorView />}
+              {!searchState.noDataError && (
+                <FlatList
+                  //onLayout={resetLayout}
+                  getItemLayout={(data, index) => ({
+                    length: ITEM_HEIGHT,
+                    offset: ITEM_HEIGHT * index,
+                    index,
+                  })}
+                  initialScrollIndex={Math.floor(
+                    (topItemRef.current || 0) / columns,
+                  )}
+                  /*onScrollToIndexFailed={info => {
               setTimeout(() => listRef.current?.scrollToIndex(), 200);
             }}*/
-              ref={listRef}
-              style={style.imageList}
-              key={`fl_${columns}`}
-              data={searchState.results}
-              onViewableItemsChanged={onViewableItemsChanged}
-              numColumns={columns}
-              horizontal={false}
-              keyExtractor={item => `${item.id}`}
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('ImageView', {id: item.id})
-                  }
-                  style={{flex: 1 / columns, height: ITEM_HEIGHT}}>
-                  <FastImage
-                    style={[style.imagePreview]}
-                    source={{uri: item.previewURL}}
-                    resizeMode={FastImage.resizeMode.contain}
-                  />
-                </TouchableOpacity>
+                  ref={listRef}
+                  style={style.imageList}
+                  key={`fl_${columns}`}
+                  data={searchState.results}
+                  onViewableItemsChanged={onViewableItemsChanged}
+                  numColumns={columns}
+                  horizontal={false}
+                  keyExtractor={item => `${item.id}`}
+                  renderItem={({item}) => (
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('ImageView', {id: item.id})
+                      }
+                      style={{flex: 1 / columns, height: ITEM_HEIGHT}}>
+                      <FastImage
+                        style={[style.imagePreview]}
+                        source={{uri: item.previewURL}}
+                        resizeMode={FastImage.resizeMode.contain}
+                      />
+                    </TouchableOpacity>
+                  )}
+                  onEndReachedThreshold={0.6}
+                  onEndReached={loadMoreCallback}
+                />
               )}
-              onEndReachedThreshold={0.6}
-              onEndReached={loadMoreCallback}
-            />
+              {searchState.loading && <SpinnerView />}
+            </>
           )}
-          {searchState.loading && <SpinnerView />}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

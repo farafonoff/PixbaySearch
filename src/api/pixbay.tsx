@@ -34,7 +34,7 @@ async function invokeFetchById(id: number) {
 }
 
 export function searchImages(query = '', page = 1): AppThunk {
-  return async function searchImagesThunk(dispatch, getState) {
+  return async function searchImagesThunk(dispatch, _getState) {
     dispatch(initiateSearch(query));
     try {
       const result = await invokeSearch(query, page);
@@ -59,7 +59,6 @@ export function continueSearch(): AppThunk {
       dispatch(storeResult({data: result.hits, page: newPage}));
     } catch (networkError) {
       dispatch(searchFailed({page: newPage}));
-      
     }
   };
 }
